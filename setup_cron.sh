@@ -9,19 +9,18 @@ LAB_DIR="/opt/backup"
 CRON_FILE="/etc/cron.d/backup"
 LOG_FILE="/var/log/backup.log"
 STUDENTS_GROUP="students"
-DEFAULT_STUDENT_USER="student"   # if present, will be added to the group
 SHELL_BIN="/bin/bash"
 # ----------------------------
 
 need_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "[!] Please run as root: sudo bash setup.sh" >&2
+    echo "run as root pls" >&2
     exit 1
   fi
 }
 
 need_bin() {
-  command -v "$1" >/dev/null 2>&1 || { echo "[!] Missing dependency: $1" >&2; exit 1; }
+  command -v "$1" >/dev/null 2>&1 || { echo "Missing dependency: $1" >&2; exit 1; }
 }
 
 restart_cron() {
@@ -85,16 +84,10 @@ main() {
   need_bin "${SHELL_BIN}"
   need_bin crontab
 
-  # Ensure students group
+  # Ensure students group only (no user modification)
   if ! getent group "${STUDENTS_GROUP}" >/dev/null; then
     groupadd "${STUDENTS_GROUP}"
     echo "[+] Created group: ${STUDENTS_GROUP}"
-  fi
-
-  # Optionally add a default 'student' user to the group if it exists
-  if id -u "${DEFAULT_STUDENT_USER}" >/dev/null 2>&1; then
-    usermod -aG "${STUDENTS_GROUP}" "${DEFAULT_STUDENT_USER}"
-    echo "[+] Added '${DEFAULT_STUDENT_USER}' to ${STUDENTS_GROUP}"
   fi
 
   # Prepare lab dir (root-owned, group students; dir group-writable - intentional)
@@ -116,15 +109,12 @@ main() {
   restart_cron
 
   echo
-  echo "[+] Setup complete."
-  echo "[i] Cron now runs: ${SHELL_BIN} ${LAB_DIR}/task.sh every minute (as root)."
-  echo "[i] Tail logs: sudo tail -f ${LOG_FILE}"
-  echo "[i] Students can edit: ${LAB_DIR}/task.sh (group '${STUDENTS_GROUP}')"
-  echo "[i] Proof files: /tmp/backup_proof.txt, /tmp/pwned-<user>.txt, /tmp/backup_markers.log"
+  echo "Cron now runs: ${SHELL_BIN} ${LAB_DIR}/task.sh every minute (as root)."
+  echo "Tail logs: sudo tail -f ${LOG_FILE}"
+  echo "Students can edit: ${LAB_DIR}/task.sh (group '${STUDENTS_GROUP}')"
+  echo "Proof files: /tmp/backup_proof.txt, /tmp/pwned-<user>.txt, /tmp/backup_markers.log"
   echo
-  echo "[!] Post-lab hardening (for debrief):"
-  echo "    chown -R root:root ${LAB_DIR} && chmod 0755 ${LAB_DIR} && chmod 0644 ${LAB_DIR}/task.sh"
-  echo "    # or migrate to a systemd timer with a restricted service account."
+
 }
 
 main "$@"
