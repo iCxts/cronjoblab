@@ -5,9 +5,9 @@
 set -euo pipefail
 
 # ---------- config ----------
-LAB_DIR="/opt/cronlab"
-CRON_FILE="/etc/cron.d/cronlab"
-LOG_FILE="/var/log/cronlab.log"
+LAB_DIR="/opt/backup"
+CRON_FILE="/etc/cron.d/backup"
+LOG_FILE="/var/log/backup.log"
 STUDENTS_GROUP="students"
 DEFAULT_STUDENT_USER="student"   # if present, will be added to the group
 SHELL_BIN="/bin/bash"
@@ -35,14 +35,11 @@ restart_cron() {
 write_task_sh() {
   cat > "${LAB_DIR}/task.sh" <<'BASH_EOF'
 #!/usr/bin/env bash
-# Cronjob Abuse Lab — Safe Task (Bash)
-# Intentionally group-writable to simulate a misconfiguration.
-# Students may modify ONLY the marked block to produce harmless, local effects.
 
 set -euo pipefail
 
-PROOF_FILE="/tmp/cronlab_proof.txt"
-MARKERS_LOG="/tmp/cronlab_markers.log"
+PROOF_FILE="/tmp/backup_proof.txt"
+MARKERS_LOG="/tmp/backup_markers.log"
 
 log_line() {
   printf "%s | %s\n" "$(date -u +%FT%TZ)" "$*" >> "$MARKERS_LOG"
@@ -123,7 +120,7 @@ main() {
   echo "[i] Cron now runs: ${SHELL_BIN} ${LAB_DIR}/task.sh every minute (as root)."
   echo "[i] Tail logs: sudo tail -f ${LOG_FILE}"
   echo "[i] Students can edit: ${LAB_DIR}/task.sh (group '${STUDENTS_GROUP}')"
-  echo "[i] Proof files: /tmp/cronlab_proof.txt, /tmp/pwned-<user>.txt, /tmp/cronlab_markers.log"
+  echo "[i] Proof files: /tmp/backup_proof.txt, /tmp/pwned-<user>.txt, /tmp/backup_markers.log"
   echo
   echo "[!] Post-lab hardening (for debrief):"
   echo "    chown -R root:root ${LAB_DIR} && chmod 0755 ${LAB_DIR} && chmod 0644 ${LAB_DIR}/task.sh"
